@@ -11,6 +11,13 @@ class MultiTypeMap[K] {
     private val map: mutable.Map[K, Any] = mutable.HashMap.empty
     private val typesMap: mutable.Map[K, TypeTag[_ <: Any]] = mutable.HashMap.empty
 
+    def this(it: IterableOnce[(K, _ <: Any)]) = {
+        this()
+        it.iterator.foreach { case (key, value) =>
+            put(key, value)
+        }
+    }
+
     def put[V : TypeTag](key: K, value: V): Boolean = {
         typesMap.put(key, typeTag[V])
         map.put(key, value.asInstanceOf[Any]).isDefined
@@ -120,12 +127,16 @@ class MultiTypeMap[K] {
     def isEmpty: Boolean = map.isEmpty
 
     def nonEmpty: Boolean = map.nonEmpty
+
+    override def toString: String = map.toString()
 }
 
 object MultiTypeMap {
 
-    def apply[K](): MultiTypeMap[K] = {
-        empty[K]
+    def apply[K](): MultiTypeMap[K] = empty[K]
+
+    def apply[K](entries: (K, _ <: Any)*): MultiTypeMap[K] = {
+        new MultiTypeMap[K](entries)
     }
 
     def empty[K]: MultiTypeMap[K] = {
