@@ -1,7 +1,9 @@
 package info.willdspann.generic
 
+import java.util.Objects
+
 import scala.collection.mutable
-import scala.reflect.runtime.universe.{TypeTag, typeTag, typeOf}
+import scala.reflect.runtime.universe.{TypeTag, typeOf, typeTag}
 
 /**
  * Mutable hash-map supporting multiple value types. TypeTags are kept for all values stored and used to maintain
@@ -127,6 +129,21 @@ class MultiTypeMap[K] {
     def isEmpty: Boolean = map.isEmpty
 
     def nonEmpty: Boolean = map.nonEmpty
+
+    override def equals(obj: Any): Boolean = {
+        if (obj == this) return true
+        if (obj == null) return false
+
+        obj match {
+            case m: MultiTypeMap[_] =>
+                m.typesMap.equals(this.typesMap) && m.map.equals(this.map)
+            case _ => false
+        }
+    }
+
+    override def hashCode(): Int = {
+        Objects.hash(typesMap, map)
+    }
 
     override def toString: String = map.toString()
 }
