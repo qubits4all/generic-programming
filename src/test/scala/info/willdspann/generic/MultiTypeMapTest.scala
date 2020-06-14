@@ -5,12 +5,15 @@ import java.time.LocalDate
 object MultiTypeMapTest {
 
     def main(args: Array[String]): Unit = {
-        val multiTypeMap = new MultiTypeMap[String]()
+        val multiTypeMap = MultiTypeMap.empty[String]
 
         val eggs = "eggs"
         multiTypeMap.put("spam", eggs)
 
         val eggsReplaced = multiTypeMap.putIfAbsent("spam", "green eggs & ham")
+
+        multiTypeMap.put("ham", "honey")
+        val hamReplaced = multiTypeMap.put("ham", "eggs")
 
         multiTypeMap.putIfAbsent("parrot", "Pining for the fjords")
 
@@ -20,6 +23,10 @@ object MultiTypeMapTest {
 
         val marsBook = Book("Mars", "Ben Bova", LocalDate.of(1990, 6, 10), 532, eBook = true)
         multiTypeMap.put("mars", marsBook)
+
+        val moonwarBook = Book("Moonwar", "Ben Bova", LocalDate.of(1985, 3, 1), 740, eBook = false)
+        multiTypeMap.put("moonwar", moonwarBook)
+        val moonwarReplaced = multiTypeMap.put("moonwar", "Moonwar (book)")
 
         println(s"Map size: ${multiTypeMap.size}")
 
@@ -34,6 +41,8 @@ object MultiTypeMapTest {
 
         val spam: String = multiTypeMap("spam")
         println(s"'spam' via apply(): $spam")
+
+        println(s"Value for 'ham' replaced? $hamReplaced")
 
         println(s"Contains 'parrot': ${multiTypeMap.contains("parrot")}")
 
@@ -68,6 +77,8 @@ object MultiTypeMapTest {
         val marsBookRetrieved: Book = multiTypeMap("mars")
         println(s"'mars' via apply(): $marsBookRetrieved")
 
+        println(s"Value for 'moonwar' replaced? $moonwarReplaced")
+
         multiTypeMap.get[Int]("spam").map { foo =>
             println(s"foo: $foo")
         }.getOrElse {
@@ -89,6 +100,9 @@ object MultiTypeMapTest {
         println(s"Contains value 'eggs': ${multiTypeMap.containsValue("eggs")}")
         println(s"Contains (literal) value 'eggs': ${multiTypeMap.containsLiteral["eggs"]}")
 
+        println(s"Contains [${multiTypeMap.count("eggs")}] entries with value: 'eggs'")
+        println(s"Contains [${multiTypeMap.countLiteral["eggs"]}] entries with (literal) value: 'eggs'")
+
         println(s"Contains value 'Pining for the fjords': ${multiTypeMap.containsValue("Pining for the fjords")}")
 
         println(s"Contains value: 'foo': ${multiTypeMap.containsValue("foo")}")
@@ -100,8 +114,10 @@ object MultiTypeMapTest {
 
         println(s"Contains value: $marsBook : ${multiTypeMap.containsValue(marsBook)}")
 
-        val moonwarBook = Book("Moonwar", "Ben Bova", LocalDate.of(1985, 3, 1), 740, eBook = false)
         println(s"Contains value: $moonwarBook : ${multiTypeMap.containsValue(moonwarBook)}")
+
+        multiTypeMap.clear()
+        println(s"Cleared map has [${multiTypeMap.size}] entries.")
     }
 
 }
