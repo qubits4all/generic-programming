@@ -118,6 +118,21 @@ object MultiTypeMapTest {
 
         multiTypeMap.clear()
         println(s"Cleared map has [${multiTypeMap.size}] entries.")
+
+
+        // Test the entries factory function.
+        testEntriesFactory()
+    }
+
+    private def testEntriesFactory(): Unit = {
+        val multiTypeMap = MultiTypeMap(
+            "spam" -> "and eggs",
+            "number" -> 42,
+            "pair" -> (3 -> 'i'),
+            "book" -> Book("Mars", "Ben Bova", LocalDate.of(1990, 6, 10), 532, eBook = true)
+        )
+
+        println(s"\nMultiTypeMap[String] built w/ new entries factory:\n  ${multiTypeMap.toString}")
     }
 
 }
