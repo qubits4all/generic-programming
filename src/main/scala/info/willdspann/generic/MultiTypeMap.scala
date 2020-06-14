@@ -28,6 +28,11 @@ class MultiTypeMap[K] {
         typesMap.remove(key).isDefined
     }
 
+    def clear(): Unit = {
+        map.clear()
+        typesMap.clear()
+    }
+
     def apply[V : TypeTag](key: K): V = {
         get(key).getOrElse {
             throw new NoSuchElementException(s"No entry exists for key: $key and value type: ${typeOf[V]}")
@@ -54,7 +59,7 @@ class MultiTypeMap[K] {
             case (key, _) => key
         }.toSet
 
-        // Compare each value of matching type to given value.
+        // Find the first value of matching type equal to the given value.
         map.view.filterKeys { key =>
             keyCandidates.contains(key)
         }.exists {
@@ -70,10 +75,42 @@ class MultiTypeMap[K] {
             case (key, _) => key
         }.toSet
 
-        // Compare each value of matching type to given value.
+        // Find the first value of matching type equal to the given value.
         map.view.filterKeys { key =>
             keyCandidates.contains(key)
         }.exists {
+            case (_, elem) => elem == valueOf[V]
+        }
+    }
+
+    def count[V : TypeTag](value: V): Int = {
+        // Find keys for values of matching type.
+        val keyCandidates = typesMap.filter {
+            case (_, ttag) => typeOf[V] <:< ttag.tpe
+        }.map {
+            case (key, _) => key
+        }.toSet
+
+        // Count the number of values of matching type equal to the given value.
+        map.view.filterKeys { key =>
+            keyCandidates.contains(key)
+        }.count {
+            case (_, elem) => elem == value
+        }
+    }
+
+    def countLiteral[V : ValueOf](implicit ev: TypeTag[V]): Int = {
+        // Find keys for values of matching type.
+        val keyCandidates = typesMap.filter {
+            case (_, ttag) => typeOf[V] <:< ttag.tpe
+        }.map {
+            case (key, _) => key
+        }.toSet
+
+        // Count the number of values of matching type equal to the given value.
+        map.view.filterKeys { key =>
+            keyCandidates.contains(key)
+        }.count {
             case (_, elem) => elem == valueOf[V]
         }
     }
@@ -83,4 +120,15 @@ class MultiTypeMap[K] {
     def isEmpty: Boolean = map.isEmpty
 
     def nonEmpty: Boolean = map.nonEmpty
+}
+
+object MultiTypeMap {
+
+    def apply[K](): MultiTypeMap[K] = {
+        empty[K]
+    }
+
+    def empty[K]: MultiTypeMap[K] = {
+        new MultiTypeMap[K]()
+    }
 }
