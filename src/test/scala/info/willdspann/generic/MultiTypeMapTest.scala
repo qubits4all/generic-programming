@@ -136,3 +136,5 @@ object MultiTypeMapTest {
     }
 
 }
+
+case class Book(title: String, author: String, publishDate: LocalDate, pageCount: Int, eBook: Boolean)
